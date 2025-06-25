@@ -4,10 +4,8 @@ pipeline {
   environment {
     IMAGE_NAME = "myapp"
     TAG = "green"
-  }
-
-  environment {
     KUBECONFIG = '/var/lib/jenkins/.kube/config'
+  }
 
   stages {
     stage('Build Docker Image') {
@@ -48,4 +46,3 @@ pipeline {
     }
   }
 }
-
