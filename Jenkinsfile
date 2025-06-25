@@ -6,6 +6,9 @@ pipeline {
     TAG = "green"
   }
 
+  environment {
+    KUBECONFIG = '/var/lib/jenkins/.kube/config'
+
   stages {
     stage('Build Docker Image') {
       steps {
