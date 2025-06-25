@@ -1,100 +1,140 @@
-Blue-Green Deployment Demo with Jenkins + Kubernetes + Docker
+# Blue-Green Deployment with Jenkins, Docker, and Kubernetes (Minikube)
 
-This project demonstrates a complete Blue-Green deployment strategy using Jenkins CI/CD, Docker, and Kubernetes running on Minikube.
+This project demonstrates a complete Blue-Green deployment strategy using:
+- Jenkins (CI/CD)
+- Docker (Containerization)
+- Kubernetes (Minikube)
+- Shell script (`switch_traffic.sh`) for switching traffic
 
-Project Structure:
+---
 
-.
+## 🔧 Project Structure
+
+```
+blue-green-deployment-demo/
 ├── Jenkinsfile
-├── switch_traffic.sh
+├── Dockerfile
+├── requirements.txt
 ├── app/
 │   └── app.py
-├── requirements.txt
-└── k8s/
-    ├── deployment-green.yaml
-    ├── deployment-blue.yaml (optional)
-    └── service.yaml
+├── k8s/
+│   ├── deployment-blue.yaml
+│   ├── deployment-green.yaml
+│   └── service.yaml
+└── switch_traffic.sh
+```
 
-How it Works:
+---
 
-- Green version is deployed first using deployment-green.yaml.
-- Jenkins builds and pushes the Docker image (myapp:green) and loads it into Minikube.
-- Kubernetes service (myapp-service) initially routes traffic to app: myapp, version: green.
-- Later, if a blue version is deployed, you can switch traffic back to blue using switch_traffic.sh.
+## 🚀 How It Works (Blue-Green Flow)
 
-Setup Instructions:
+1. Jenkins pulls code from GitHub.
+2. Builds Docker image (`myapp:green`).
+3. Loads the image into Minikube.
+4. Deploys the `green` version to Kubernetes.
+5. Performs a smoke test.
+6. Executes `switch_traffic.sh` to redirect service to `green`.
+7. Deletes `blue` deployment if it exists.
 
-1. Start Minikube
-   minikube start --driver=docker
+---
 
-2. Install Jenkins and Required Plugins:
-   - Docker
-   - Kubernetes CLI
-   - Git
-   - Pipeline
+## ⚙️ Prerequisites
 
-3. Set Up Permissions:
-   sudo mkdir -p /var/lib/jenkins/.kube /var/lib/jenkins/.minikube
-   sudo cp -r /home/ubuntu/.kube /var/lib/jenkins/
-   sudo cp -r /home/ubuntu/.minikube /var/lib/jenkins/
-   sudo chown -R jenkins:jenkins /var/lib/jenkins/.kube /var/lib/jenkins/.minikube
-   sudo sed -i 's|/home/ubuntu/.minikube|/var/lib/jenkins/.minikube|g' /var/lib/jenkins/.kube/config
+- EC2 instance (Ubuntu)
+- Jenkins installed
+- Docker installed
+- Minikube + kubectl configured
+- GitHub repo with this project code
 
-4. Jenkinsfile Pipeline:
-   Create a pipeline job in Jenkins pointing to this repo. It will:
-   - Build Docker image
-   - Load image into Minikube
-   - Deploy to K8s
-   - Smoke test
-   - Switch traffic
-   - Cleanup old deployment
+---
 
-Switching Traffic:
+## ✅ Setup Instructions
 
-Use the script to change the live service version:
+### 1. Minikube
 
-  ./switch_traffic.sh
+```bash
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+minikube start --driver=none
+```
 
-Inside the script:
+### 2. Docker Permissions for Jenkins
 
-To switch to green:
-  kubectl patch svc myapp-service -p '{"spec":{"selector":{"app":"myapp","version":"green"}}}'
+```bash
+sudo usermod -aG docker jenkins
+sudo systemctl restart docker
+```
 
-To switch to blue:
-  kubectl patch svc myapp-service -p '{"spec":{"selector":{"app":"myapp","version":"blue"}}}'
+### 3. Minikube Config for Jenkins
 
-Access Your App:
+```bash
+sudo mkdir -p /var/lib/jenkins/.minikube /var/lib/jenkins/.kube
+sudo cp -r ~/.minikube/* /var/lib/jenkins/.minikube/
+sudo cp -r ~/.kube/* /var/lib/jenkins/.kube/
+sudo chown -R jenkins:jenkins /var/lib/jenkins/.minikube /var/lib/jenkins/.kube
+sudo sed -i 's|/home/ubuntu/.minikube|/var/lib/jenkins/.minikube|g' /var/lib/jenkins/.kube/config
+```
 
-1. Get NodePort:
+---
+
+## 🧪 Run Jenkins Pipeline
+
+- Add your GitHub repo to Jenkins job.
+- Make sure your Jenkinsfile is in the root.
+- Run the Jenkins build.
+
+---
+
+## 🌐 Accessing the Application
+
+1. Get the NodePort:
+   ```bash
    kubectl get svc
-   Look for:
-   myapp-service   NodePort   ...   80:32161/TCP
+   ```
 
-2. Get Minikube IP:
-   minikube ip
+2. Note the `PORT` (e.g., `32161`). Then:
 
-3. Access the app:
-   curl http://<minikube-ip>:<nodeport>
-   Example:
-   curl http://192.168.49.2:32161
+   - Inside EC2 (for testing):
+     ```bash
+     curl http://192.168.49.2:<PORT>
+     ```
 
-Troubleshooting:
+   - For public access:
+     - Open EC2 Security Group to allow `<PORT>/TCP` from `0.0.0.0/0`
+     - Access via: `http://<EC2_PUBLIC_IP>:<PORT>`
 
-| Issue                                  | Fix                                                                 |
-|---------------------------------------|----------------------------------------------------------------------|
-| permission denied on .minikube/*.crt  | Ensure Jenkins owns files and paths are updated in kube config      |
-| ImagePullBackOff in green pod         | Confirm image was built and loaded into Minikube                    |
-| service "myapp-service" not found     | kubectl apply -f k8s/service.yaml                                   |
-| Can't access from EC2 public IP       | Minikube is local; use minikube ip + NodePort instead               |
+---
 
-Author:
+## 🔁 Traffic Switching Logic
 
-Penumarthi Bhanu Sai Surya Teja
+`swtich_traffic.sh` uses:
+```bash
+kubectl patch svc myapp-service -p '{"spec":{"selector":{"app":"myapp","version":"green"}}}'
+```
+This redirects traffic from `blue` to `green`.
 
-Summary:
+---
 
-This demo shows how to implement zero-downtime deployments using Blue-Green strategy with:
-- Jenkins CI/CD
-- Docker
-- Kubernetes
-- Minikube (local K8s)
+## 🛠️ Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| `permission denied` for `.minikube` | Ensure Jenkins owns copied `.kube` and `.minikube` files |
+| Minikube not accessible by Jenkins | Copy config and `chown` to `jenkins` user |
+| `myapp-service not found` | Apply `k8s/service.yaml` manually: `kubectl apply -f k8s/service.yaml` |
+| Image not pulling | Ensure image is built and loaded via `minikube image load` |
+
+---
+
+## 📎 References
+
+- [Jenkins Pipeline Syntax](https://www.jenkins.io/doc/book/pipeline/)
+- [Blue-Green Deployment Pattern](https://martinfowler.com/bliki/BlueGreenDeployment.html)
+- [Minikube Docs](https://minikube.sigs.k8s.io/)
+
+---
+
+## ✍️ Author
+
+Penumarthi Bhanu Sai Surya Teja  
+DevOps Engineer | [GitHub](https://github.com/bhanusaisuryatejadevops)
