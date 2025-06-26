@@ -1,4 +1,4 @@
-# Blue-Green Deployment with Jenkins, Docker, and Kubernetes (Minikube)
+# Blue-Green Deployment with Jenkins, Docker, Kubernetes (Minikube), and Monitoring
 
 This project demonstrates a complete Blue-Green deployment strategy using:
 - Jenkins (CI/CD)
