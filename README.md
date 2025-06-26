@@ -6,7 +6,6 @@ This project demonstrates a complete Blue-Green deployment strategy using:
 ...
 
 
-This project demonstrates a complete Blue-Green deployment strategy using:
 - Jenkins (CI/CD)
 - Docker (Containerization)
 - Kubernetes (Minikube)
