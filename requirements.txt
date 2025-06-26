@@ -1,7 +1,2 @@
 flask
-<<<<<<< HEAD
-=======
 prometheus_client
-
->>>>>>> 6d7513b (updated and added deployment files)
-
