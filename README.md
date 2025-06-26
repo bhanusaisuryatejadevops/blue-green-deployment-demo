@@ -5,7 +5,7 @@ This project demonstrates a complete Blue-Green deployment strategy using:
 - Docker (Containerization)
 - Kubernetes (Minikube)
 - Shell script (`switch_traffic.sh`) for switching traffic
-
+- Prometheus + Grafana (Monitoring)
 ---
 
 ## 🔧 Project Structure
@@ -20,7 +20,10 @@ blue-green-deployment-demo/
 ├── k8s/
 │   ├── deployment-blue.yaml
 │   ├── deployment-green.yaml
-│   └── service.yaml
+│   ├── service.yaml
+│   ├── prometheus-config.yaml
+│   ├── prometheus-deployment.yaml
+│   └── grafana-deployment.yaml
 └── switch_traffic.sh
 ```
 
