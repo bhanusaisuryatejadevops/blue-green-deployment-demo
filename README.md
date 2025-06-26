@@ -118,6 +118,18 @@ This redirects traffic from `blue` to `green`.
 
 ---
 
+Access Grafana
+
+kubectl port-forward deployment/grafana 3000:3000
+
+Visit: http://localhost:3000
+
+Default credentials: admin / admin
+
+Add Prometheus data source: http://prometheus:9090
+
+Import dashboards for Python/Flask/custom metrics
+
 ## 🛠️ Troubleshooting
 
 | Issue | Solution |
@@ -126,6 +138,7 @@ This redirects traffic from `blue` to `green`.
 | Minikube not accessible by Jenkins | Copy config and `chown` to `jenkins` user |
 | `myapp-service not found` | Apply `k8s/service.yaml` manually: `kubectl apply -f k8s/service.yaml` |
 | Image not pulling | Ensure image is built and loaded via `minikube image load` |
+| No metrics in Prometheus | Ensure app exposes /metrics and Prometheus target is correct` |
 
 ---
 
@@ -134,7 +147,8 @@ This redirects traffic from `blue` to `green`.
 - [Jenkins Pipeline Syntax](https://www.jenkins.io/doc/book/pipeline/)
 - [Blue-Green Deployment Pattern](https://martinfowler.com/bliki/BlueGreenDeployment.html)
 - [Minikube Docs](https://minikube.sigs.k8s.io/)
-
+- [Prometheus]
+- [Grafana]
 ---
 
 ## ✍️ Author
