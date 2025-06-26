@@ -118,8 +118,7 @@ This redirects traffic from `blue` to `green`.
 
 ---
 
-<<<<<<< HEAD
-Access Grafana
+## 🔁 Access Grafana
 
 kubectl port-forward deployment/grafana 3000:3000
 
@@ -131,8 +130,6 @@ Add Prometheus data source: http://prometheus:9090
 
 Import dashboards for Python/Flask/custom metrics
 
-=======
->>>>>>> 6d7513b (updated and added deployment files)
 ## 🛠️ Troubleshooting
 
 | Issue | Solution |
@@ -153,12 +150,8 @@ Import dashboards for Python/Flask/custom metrics
 - [Jenkins Pipeline Syntax](https://www.jenkins.io/doc/book/pipeline/)
 - [Blue-Green Deployment Pattern](https://martinfowler.com/bliki/BlueGreenDeployment.html)
 - [Minikube Docs](https://minikube.sigs.k8s.io/)
-<<<<<<< HEAD
 - [Prometheus]
 - [Grafana]
-=======
-
->>>>>>> 6d7513b (updated and added deployment files)
 ---
 
 ## ✍️ Author
